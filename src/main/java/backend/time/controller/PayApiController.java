@@ -2,23 +2,19 @@ package backend.time.controller;
 
 import backend.time.config.auth.PrincipalDetail;
 import backend.time.dto.PayResponseDto;
-import backend.time.dto.ResponseDto;
-import backend.time.dto.request.PayDto;
 import backend.time.service.PayService;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-public class PayController {
+public class PayApiController {
 
     private final PayService payService;
 

@@ -2,6 +2,8 @@ package backend.time.service;
 
 import backend.time.dto.BoardDistanceDto;
 import backend.time.dto.request.*;
+import backend.time.dto.response.BoardResponseDto.AccountResponseDto;
+import backend.time.dto.response.BoardResponseDto.WhoResponseDto;
 import backend.time.model.ChatRoom;
 import backend.time.model.Member.Member;
 import backend.time.model.pay.Account;
@@ -17,7 +19,6 @@ import backend.time.repository.ImageRepository;
 import backend.time.repository.MemberRepository;
 import backend.time.specification.BoardSpecification;
 import jakarta.persistence.EntityManager;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,7 +60,7 @@ public class BoardService {
     @Transactional
     public void point(PointDto pointDto) {
         Member findMember = memberRepository.findByKakaoId(pointDto.getKakaoId())
-                .orElseThrow(()->new IllegalArgumentException("해당 멤버가 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 멤버가 존재하지 않습니다."));
         findMember.setLongitude(pointDto.getLongitude());
         findMember.setLatitude(pointDto.getLatitude());
         findMember.setAddress(pointDto.getAddress());
@@ -102,14 +103,14 @@ public class BoardService {
 
         Board savedBoard = boardRepository.save(board);
         Long boardId = savedBoard.getId();
-        if(boardDto.getImages() !=null) {
+        if (boardDto.getImages() != null) {
             // 이미지 개수 검사
             if (boardDto.getImages().size() > 5) {
                 throw new IllegalArgumentException("최대 5개의 이미지만 업로드할 수 있습니다.");
             }
 
             List<Image> images = imageManager.saveImages(boardDto.getImages(), board);
-            
+
             for (Image image : images) {
                 board.addImage(image);
             }
@@ -125,15 +126,16 @@ public class BoardService {
         // 위치 기반 검색을 위한 ID 리스트 검색
         List<Long> boardIds = null;
 //            List<BoardDistanceDto> boardDistanceDtos = boardRepository.findNearbyOrUnspecifiedLocationBoardsWithDistance(member.getLocation().getX(), member.getLocation().getY());
-        List<BoardDistanceDto> boardDistanceDtos = boardRepository.findNearbyOrUnspecifiedLocationBoardsWithDistance(member.getLongitude(), member.getLatitude());
-            boardIds = boardDistanceDtos.stream()
-                    .map(BoardDistanceDto::getId)
-                    .collect(Collectors.toList());
-        System.out.println("boardId : "+ boardIds);
+        List<BoardDistanceDto> boardDistanceDtos = boardRepository.findNearbyOrUnspecifiedLocationBoardsWithDistance(
+                member.getLongitude(), member.getLatitude());
+        boardIds = boardDistanceDtos.stream()
+                .map(BoardDistanceDto::getId)
+                .collect(Collectors.toList());
+        System.out.println("boardId : " + boardIds);
         List<Double> distance = boardDistanceDtos.stream()
                 .map(BoardDistanceDto::getDistance)
                 .collect(Collectors.toList());
-        System.out.println("distance : "+ distance);
+        System.out.println("distance : " + distance);
 
         Specification<Board> spec = Specification.where(BoardSpecification.withIds(boardIds))
                 .and(BoardSpecification.withTitleOrContent(requestDto.getKeyword()))
@@ -143,7 +145,6 @@ public class BoardService {
         String property = "createDate";
 
         Pageable pageable = PageRequest.of(requestDto.getPageNum(), 8, Sort.by(Sort.Direction.DESC, property));
-
 
         System.out.println(spec);
         return boardRepository.findAll(spec, pageable);
@@ -161,7 +162,7 @@ public class BoardService {
 
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
-        if(board.getBoardState()==RESERVED || board.getBoardState()==SOLD){
+        if (board.getBoardState() == RESERVED || board.getBoardState() == SOLD) {
             throw new IllegalArgumentException("거래 중이거나 판매 완료된 글은 수정할 수 없습니다.");
         }
         board.setTitle(boardUpdateDto.getTitle());
@@ -192,7 +193,8 @@ public class BoardService {
             List<MultipartFile> newImages = new ArrayList<>();
             // 새로운 이미지 추가
             for (MultipartFile image : images) {
-                if (findImages.stream().noneMatch(findImage -> Objects.equals(findImage.getStoredFileName(), image.getOriginalFilename()))) {
+                if (findImages.stream().noneMatch(
+                        findImage -> Objects.equals(findImage.getStoredFileName(), image.getOriginalFilename()))) {
                     newImages.add(image);
                 }
             }
@@ -216,21 +218,20 @@ public class BoardService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 채팅방이 존재하지 않습니다."));
         //거래중인 글 or 거래완료글이면 예외처리
-        if(board.getBoardState()==RESERVED || board.getBoardState()==SOLD){
+        if (board.getBoardState() == RESERVED || board.getBoardState() == SOLD) {
             throw new IllegalArgumentException("잘못된 접근입니다.");
         }
         PayMethod payMethod = PayMethod.valueOf(paymethdto.getPayMeth());
         //거래방식 저장
         board.setPayMethod(payMethod);
         if (payMethod.equals(PAY)) {  //틈새페이를 선택했을때
-                // 틈새페이 지불하는 사람이 board 가격만큼 현재 있는지 확인 없으면 -> 예외터지게 -> 프론트가 예외처리
-                //있으면 차감하는 로직
-            if(board.getBoardType().equals(SELL)){
+            // 틈새페이 지불하는 사람이 board 가격만큼 현재 있는지 확인 없으면 -> 예외터지게 -> 프론트가 예외처리
+            //있으면 차감하는 로직
+            if (board.getBoardType().equals(SELL)) {
                 //판매글일때.. 채팅하기 누른사람(buyer)이 돈을 지불
-                if(board.getItemPrice() > chatRoom.getBuyer().getTimePay()) {
+                if (board.getItemPrice() > chatRoom.getBuyer().getTimePay()) {
                     throw new IllegalArgumentException("틈새페이를 충전해주세요");
-                }
-                else {
+                } else {
                     chatRoom.getBuyer().setTimePay(chatRoom.getBuyer().getTimePay() - board.getItemPrice());
                     //포인트가 임시저장소로 이동
                     PayStorage storage = PayStorage.builder()
@@ -240,12 +241,11 @@ public class BoardService {
                             .build();
                     payStorageRepository.save(storage);
                 }
-            }else {
+            } else {
                 //구매글일때.. 채팅하기 누른사람(buyer)말고 글쓴사람 writer가 돈을 지불
-                if(board.getItemPrice() > board.getMember().getTimePay()) {
+                if (board.getItemPrice() > board.getMember().getTimePay()) {
                     throw new IllegalArgumentException("틈새페이를 충전해주세요");
-                }
-                else {
+                } else {
                     board.getMember().setTimePay(board.getMember().getTimePay() - board.getItemPrice());
                     //포인트가 임시저장소로 이동
                     PayStorage storage = PayStorage.builder()
@@ -256,7 +256,7 @@ public class BoardService {
                     payStorageRepository.save(storage);
                 }
             }
-        } else if(payMethod.equals(ACCOUNT)) {
+        } else if (payMethod.equals(ACCOUNT)) {
             Account account = Account.builder()
                     .accountNumber(paymethdto.getAccountNumber())
                     .bank(paymethdto.getBank())
@@ -276,11 +276,11 @@ public class BoardService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 채팅방이 존재하지 않습니다."));
         //거래중인 글 아니면 예외처리
-        if(board.getBoardState()==SALE || board.getBoardState()==SOLD){
+        if (board.getBoardState() == SALE || board.getBoardState() == SOLD) {
             throw new IllegalArgumentException("잘못된 접근입니다.");
         }
         //틈새페이는 환불해줘야함
-        if(board.getPayMethod().equals(PAY)) {
+        if (board.getPayMethod().equals(PAY)) {
             PayStorage storage = payStorageRepository.findByBoard(board)
                     .orElseThrow(() -> new IllegalArgumentException("해당하는 저장소가 존재하지 않습니다."));
 
@@ -305,12 +305,12 @@ public class BoardService {
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 채팅방이 존재하지 않습니다."));
 
         //거래중인 글 아니면 예외처리
-        if(board.getBoardState()==SALE || board.getBoardState()==SOLD){
+        if (board.getBoardState() == SALE || board.getBoardState() == SOLD) {
             throw new IllegalArgumentException("잘못된 접근입니다.");
         }
 
         //틈새페이는 상대방에게 이동
-        if(board.getPayMethod().equals(PAY)) {
+        if (board.getPayMethod().equals(PAY)) {
             PayStorage storage = payStorageRepository.findByBoard(board)
                     .orElseThrow(() -> new IllegalArgumentException("해당하는 저장소가 존재하지 않습니다."));
 
@@ -333,11 +333,11 @@ public class BoardService {
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 채팅방이 존재하지 않습니다."));
         Account account = accountRepository.findByChatRoom(chatRoom)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 계좌 정보가 존재하지 않습니다."));
-        AccountResponseDto accountResponseDto = new AccountResponseDto();
-        accountResponseDto.setAccountNumber(account.getAccountNumber());
-        accountResponseDto.setBank(account.getBank());
-        accountResponseDto.setHolder(account.getHolder());
-        return accountResponseDto;
+        return AccountResponseDto.builder()
+                .accountNumber(account.getAccountNumber())
+                .bank(account.getBank())
+                .holder(account.getHolder())
+                .build();
     }
 
     //로그인한사람 (나) seller 인지 buyer인지 알려줌
@@ -349,16 +349,16 @@ public class BoardService {
         WhoResponseDto whoResponseDto = new WhoResponseDto();
         if (board.getBoardType().equals(SELL)) {
             //판매글일때 채팅하기 누른사람(buyer)이 돈을 지불한 사람
-            if(Objects.equals(member.getId(), chatRoom.getBuyer().getId())){
+            if (Objects.equals(member.getId(), chatRoom.getBuyer().getId())) {
                 whoResponseDto.setRole("buyer");
-            } else{
+            } else {
                 whoResponseDto.setRole("seller");
             }
         } else {
             //구매글일때 채팅하기 누른사람(buyer)말고 글쓴사람 writer가 돈을 지불한 사람
-            if(Objects.equals(member.getId(), board.getMember().getId())) {
+            if (Objects.equals(member.getId(), board.getMember().getId())) {
                 whoResponseDto.setRole("buyer");
-            } else{
+            } else {
                 whoResponseDto.setRole("seller");
             }
         }
@@ -380,17 +380,4 @@ public class BoardService {
         List<Board> boards = boardRepository.findByTraderOrderByCreateDateDesc(member);
         return boards;
     }
-
-    @Data
-    public class AccountResponseDto {
-        private String holder; // 예금주
-        private String bank; // 은행
-        private Long accountNumber; //계좌번호
-    }
-
-    @Data
-    public class WhoResponseDto {
-        private String role;
-    }
-
 }
