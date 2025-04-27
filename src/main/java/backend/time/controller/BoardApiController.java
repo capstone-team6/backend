@@ -4,9 +4,12 @@ import backend.time.config.auth.PrincipalDetail;
 import backend.time.dto.BoardDistanceDto;
 import backend.time.dto.ResponseDto;
 import backend.time.dto.request.*;
+import backend.time.dto.response.BoardResponseDto;
 import backend.time.dto.response.BoardResponseDto.AccountResponseDto;
 import backend.time.dto.response.BoardResponseDto.BoardDetailResponseDto;
 import backend.time.dto.response.BoardResponseDto.BoardListResponseDto;
+import backend.time.dto.response.BoardResponseDto.BoardSearchHaversine;
+import backend.time.dto.response.BoardResponseDto.BoardSearchSpatial;
 import backend.time.dto.response.BoardResponseDto.UserAddressResponseDto;
 import backend.time.dto.response.BoardResponseDto.WhoResponseDto;
 import backend.time.model.Scrap;
@@ -22,13 +25,14 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,54 +64,21 @@ public class BoardApiController {
         return new ResponseDto<String>(HttpStatus.OK.value(), "게시글 작성 완료");
     }
 
-    //글 조회(검색)
     @GetMapping("/api/board")
     public Result findAll(@ModelAttribute @Valid BoardSearchDto requestDto,
-                          @AuthenticationPrincipal PrincipalDetail principalDetail) {
-        Page<Board> boards = boardService.searchBoards(requestDto, principalDetail.getMember());
-        // BoardDistanceDto 리스트를 생성
-        List<BoardDistanceDto> boardDistanceDtos = boardRepository.findNearbyOrUnspecifiedLocationBoardsWithDistance(
-                principalDetail.getMember().getLongitude(), principalDetail.getMember().getLatitude());
-        // id를 key로 distance를 값으로 매핑
-        Map<Long, Double> boardIdToDistanceMap = boardDistanceDtos.stream()
-                .collect(Collectors.toMap(BoardDistanceDto::getId, BoardDistanceDto::getDistance));
-
-        BoardResponseWrapper responseWrapper = getBoardResponseWrapper(
-                principalDetail, boards, boardIdToDistanceMap);
-
-        return new Result<>(responseWrapper);
-    }
-
-    private BoardResponseWrapper getBoardResponseWrapper(PrincipalDetail principalDetail, Page<Board> boards,
-                                                         Map<Long, Double> boardIdToDistanceMap) {
+                            @AuthenticationPrincipal PrincipalDetail principalDetail) {
+        Pageable pageable = PageRequest.of(requestDto.getPageNum(), 8);
+        Page<BoardResponseDto.BoardSearchSpatial> boardDistanceDtos = boardRepository.searchBoardsSpatialNative(
+                requestDto, principalDetail.getMember().getLocation(), pageable);
         UserAddressResponseDto userAddressResponseDto = UserAddressResponseDto.builder()
                 .userLatitude(principalDetail.getMember().getLatitude())
                 .userLongitude(principalDetail.getMember().getLongitude())
                 .address(principalDetail.getMember().getAddress())
                 .build();
-
-        List<BoardListResponseDto> collect = boards.getContent().stream().map(board -> {
-            BoardListResponseDto dto = BoardListResponseDto.builder()
-                    .boardId(board.getId())
-                    .title(board.getTitle())
-                    .itemTime(board.getItemTime())
-                    .itemPrice(board.getItemPrice())
-                    .createdDate(board.getCreateDate())
-                    .chatCount(board.getChatCount())
-                    .scrapCount(board.getScrapCount())
-                    .boardState(board.getBoardState())
-                    .distance(boardIdToDistanceMap.getOrDefault(board.getId(), null))
-                    .address(board.getAddress() == null ? null : board.getAddress())
-                    .firstImage(board.getImages().isEmpty() ? null : board.getImages().get(0).getStoredFileName())
-                    .build();
-
-            return dto;
-        }).collect(Collectors.toList());
-
-        BoardResponseWrapper responseWrapper = new BoardResponseWrapper();
+        BoardResponseWrapperSpatial responseWrapper = new BoardResponseWrapperSpatial();
         responseWrapper.setUserAddress(userAddressResponseDto);
-        responseWrapper.setBoards(collect);
-        return responseWrapper;
+        responseWrapper.setBoards(boardDistanceDtos);
+        return new Result<>(responseWrapper);
     }
 
     //글 상세보기
@@ -285,9 +256,15 @@ public class BoardApiController {
     }
 
     @Data
-    public class BoardResponseWrapper {
+    public class BoardResponseWrapperHaversine {
         private UserAddressResponseDto userAddress;
-        private List<BoardListResponseDto> boards;
+        private Page<BoardSearchHaversine> boards;
+    }
+
+    @Data
+    public class BoardResponseWrapperSpatial {
+        private UserAddressResponseDto userAddress;
+        private Page<BoardSearchSpatial> boards;
     }
 
     @Data

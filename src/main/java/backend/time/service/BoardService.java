@@ -1,6 +1,5 @@
 package backend.time.service;
 
-import backend.time.dto.BoardDistanceDto;
 import backend.time.dto.request.*;
 import backend.time.dto.response.BoardResponseDto.AccountResponseDto;
 import backend.time.dto.response.BoardResponseDto.WhoResponseDto;
@@ -17,14 +16,11 @@ import backend.time.model.board.Image;
 import backend.time.repository.BoardRepository;
 import backend.time.repository.ImageRepository;
 import backend.time.repository.MemberRepository;
-import backend.time.specification.BoardSpecification;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,6 +49,7 @@ public class BoardService {
     final private ChatRoomRepository chatRoomRepository;
     final private PayStorageRepository payStorageRepository;
     final private AccountRepository accountRepository;
+    final private GeometryFactory geometryFactory = new GeometryFactory();
 
     // 금지 단어 목록
     List<String> forbiddenWords = List.of("과제", "소주", "맥주", "담배", "성매매", "마약", "주류", "씨발", "시발", "지랄", "존나", "개새끼");
@@ -87,19 +84,23 @@ public class BoardService {
         board.setItemPrice(boardDto.getPrice());
         board.setContent(boardDto.getContent());
         board.setBoardType(BoardType.valueOf(boardDto.getBoardType()));
+        double longitude = 0;
+        double latitude = 90;
 
         // 위치 정보가 제공되었는지 확인
         if (boardDto.getLongitude() != null && boardDto.getLatitude() != null) {
-            double longitude = boardDto.getLongitude();
-            double latitude = boardDto.getLatitude();
-
-            // 위치 정보 설정
-            board.setLongitude(longitude);
-            board.setLatitude(latitude);
+            longitude = boardDto.getLongitude();
+            latitude = boardDto.getLatitude();
             board.setAddress(boardDto.getAddress());
         }
+        board.setLongitude(longitude);
+        board.setLatitude(latitude);
+
+        Point location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+        location.setSRID(4326);
 
         board.setMember(member);
+        board.setLocation(location);
 
         Board savedBoard = boardRepository.save(board);
         Long boardId = savedBoard.getId();
@@ -119,41 +120,8 @@ public class BoardService {
         return boardId;
     }
 
-    //글 검색 조건 or 페이징
-    public Page<Board> searchBoards(BoardSearchDto requestDto, Member member) {
-//        Pageable pageable = PageRequest.of(requestDto.getPageNum(), 8);
-
-        // 위치 기반 검색을 위한 ID 리스트 검색
-        List<Long> boardIds = null;
-//            List<BoardDistanceDto> boardDistanceDtos = boardRepository.findNearbyOrUnspecifiedLocationBoardsWithDistance(member.getLocation().getX(), member.getLocation().getY());
-        List<BoardDistanceDto> boardDistanceDtos = boardRepository.findNearbyOrUnspecifiedLocationBoardsWithDistance(
-                member.getLongitude(), member.getLatitude());
-        boardIds = boardDistanceDtos.stream()
-                .map(BoardDistanceDto::getId)
-                .collect(Collectors.toList());
-        System.out.println("boardId : " + boardIds);
-        List<Double> distance = boardDistanceDtos.stream()
-                .map(BoardDistanceDto::getDistance)
-                .collect(Collectors.toList());
-        System.out.println("distance : " + distance);
-
-        Specification<Board> spec = Specification.where(BoardSpecification.withIds(boardIds))
-                .and(BoardSpecification.withTitleOrContent(requestDto.getKeyword()))
-                .and(BoardSpecification.withCategory(requestDto.getCategory()))
-                .and(BoardSpecification.withType(requestDto.getBoardType()));
-
-        String property = "createDate";
-
-        Pageable pageable = PageRequest.of(requestDto.getPageNum(), 8, Sort.by(Sort.Direction.DESC, property));
-
-        System.out.println(spec);
-        return boardRepository.findAll(spec, pageable);
-    }
-
     @Transactional
     public void update(Long id, BoardUpdateDto boardUpdateDto) throws IOException {
-
-        // 제목과 내용에 금지 단어가 포함되어 있는지 검사
         for (String word : forbiddenWords) {
             if (boardUpdateDto.getTitle().contains(word) || boardUpdateDto.getContent().contains(word)) {
                 throw new IllegalArgumentException("제목이나 내용에 금지된 단어가 포함되어 있습니다: " + word);
@@ -165,6 +133,16 @@ public class BoardService {
         if (board.getBoardState() == RESERVED || board.getBoardState() == SOLD) {
             throw new IllegalArgumentException("거래 중이거나 판매 완료된 글은 수정할 수 없습니다.");
         }
+
+        double longitude = 0;
+        double latitude = 90;
+        if (boardUpdateDto.getLatitude() != null && boardUpdateDto.getLongitude() != null) {
+            longitude = boardUpdateDto.getLongitude();
+            latitude = boardUpdateDto.getLatitude();
+        }
+        Point location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+        location.setSRID(4326);
+        board.setLocation(location);
         board.setTitle(boardUpdateDto.getTitle());
         board.setContent(boardUpdateDto.getContent());
         board.setItemPrice(boardUpdateDto.getPrice());
@@ -176,6 +154,10 @@ public class BoardService {
         board.setBoardType(BoardType.valueOf(boardUpdateDto.getBoardType()));
         List<MultipartFile> images = boardUpdateDto.getImages();
         //사진 받고 있던 거면 냅두고 없으면 추가 없어진 건 삭제
+        updateImage(images, board);
+    }
+
+    private void updateImage(List<MultipartFile> images, Board board) throws IOException {
         if (images != null && !images.isEmpty()) {
             List<Image> findImages = imageRepository.findByBoard(board);
             Set<String> imageNames = images.stream()

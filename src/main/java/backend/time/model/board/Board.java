@@ -6,7 +6,6 @@ import backend.time.model.Member.Member;
 import backend.time.model.Scrap;
 import backend.time.model.pay.Account;
 import backend.time.model.pay.PayMethod;
-import backend.time.model.pay.PayStorage;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,6 +13,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import org.locationtech.jts.geom.Point;
 
 @Getter
 @Setter
@@ -78,13 +78,13 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatRoom> chatRooms; // 글 삭제 시 chatroom들 삭제
 
-
-    //지도 관련
     private String address;
-//    //위도경도를 한번에 위치를 나타내는 점
-//    private Point location;
+
+    @Column(nullable = false, columnDefinition = "POINT SRID 4326")
+    private Point location;
 
     private Double longitude;
+
     private Double latitude;
 
     //신고와 이의 신청은 다르지 ?
