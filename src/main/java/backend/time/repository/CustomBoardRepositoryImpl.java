@@ -98,7 +98,6 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository {
         JPAQuery<Long> countQuery = queryFactory
                 .select(board.count())
                 .from(board)
-                .leftJoin(board.images, image)
                 .where(
                         withBoardType(requestDto.getBoardType()),
                         withDistanceHaversine(distanceExpr),
@@ -169,7 +168,6 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository {
         JPAQuery<Long> countQuery = queryFactory
                 .select(board.count())
                 .from(board)
-                .leftJoin(board.images, image)
                 .where(
                         withKeyword(requestDto.getKeyword()),
                         withCategory(requestDto.getCategory()),

@@ -4,6 +4,8 @@ import backend.time.model.board.BoardCategory;
 import backend.time.model.board.BoardState;
 import backend.time.model.board.BoardType;
 import com.querydsl.core.annotations.QueryProjection;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.List;
 import lombok.Builder;
@@ -40,7 +42,9 @@ public class BoardResponseDto {
             this.scrapCount = scrapCount;
             this.distance = distance;
             if (distance != null) {
-                this.distance = distance / 1000.0;
+                this.distance = BigDecimal.valueOf(distance / 1000.0)
+                        .setScale(1, RoundingMode.DOWN)
+                        .doubleValue();
             }
             this.address = address;
             this.boardState = boardState;
@@ -76,7 +80,9 @@ public class BoardResponseDto {
             this.createdDate = createdDate;
             this.chatCount = chatCount;
             this.scrapCount = scrapCount;
-            this.distance = distance;
+            this.distance = BigDecimal.valueOf(distance)
+                    .setScale(1, RoundingMode.DOWN)
+                    .doubleValue();
             this.address = address;
             this.boardState = boardState;
             this.firstImage = firstImage;
@@ -98,6 +104,48 @@ public class BoardResponseDto {
         private BoardState boardState;
         private String firstImage;
         private BoardType boardType;
+    }
+
+    @Data
+    @Builder
+    public static class ScrapListResponseDto {
+        private Long boardId;
+        private String title;
+        private String itemTime;
+        private Long itemPrice;
+        private Timestamp createdDate;
+        private int chatCount;
+        private int scrapCount;
+        private Double distance;
+        private String address;
+        private BoardState boardState;
+        private String firstImage;
+        private BoardType boardType;
+
+        @QueryProjection
+        public ScrapListResponseDto(Long boardId, String title, String itemTime, Long itemPrice,
+                                    Timestamp createdDate,
+                                    int chatCount, int scrapCount, Double distance, String address,
+                                    BoardState boardState,
+                                    String firstImage, BoardType boardType) {
+            this.boardId = boardId;
+            this.title = title;
+            this.itemTime = itemTime;
+            this.itemPrice = itemPrice;
+            this.createdDate = createdDate;
+            this.chatCount = chatCount;
+            this.scrapCount = scrapCount;
+            this.distance = BigDecimal.valueOf(distance / 1000.0)
+                    .setScale(1, RoundingMode.DOWN)
+                    .doubleValue();
+            if (this.distance > 1000) {
+                this.distance = 0D;
+            }
+            this.address = address;
+            this.boardState = boardState;
+            this.firstImage = firstImage;
+            this.boardType = boardType;
+        }
     }
 
     @Data
