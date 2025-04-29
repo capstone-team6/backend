@@ -73,11 +73,8 @@ public class Member {
 
     @ElementCollection
     private Map<ServiceEvaluationCategory, Integer> serviceCount = new HashMap<>();
-/*
-    @ElementCollection
-    private Map<MannerEvaluationCategory, Integer> mannerCount = new HashMap<>();
 
-   */
-
-
+    public void addTimePay(Long amount) {
+        timePay += amount;
+    }
 }
