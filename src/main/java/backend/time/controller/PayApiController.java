@@ -37,8 +37,8 @@ public class PayApiController {
     }
 
     @PostMapping("pay/{imp_uid}/v2")
-    public PayResponseDto verifyAndChargeV2(@PathVariable("imp_uid") String imp_uid, @RequestBody VerifyAndChargeDto request, @AuthenticationPrincipal PrincipalDetail principalDetail) throws IamportResponseException, IOException {
+    public ResponseDto<PayResponseDto> verifyAndChargeV2(@PathVariable("imp_uid") String imp_uid, @RequestBody VerifyAndChargeDto request, @AuthenticationPrincipal PrincipalDetail principalDetail) throws IamportResponseException, IOException {
         PayResponseDto payResponseDto = payService.verifyAndChargePayV2(principalDetail.getMember().getId(), imp_uid, request);
-        return payResponseDto;
+        return new ResponseDto<>(HttpStatus.OK.value(), payResponseDto);
     }
 }

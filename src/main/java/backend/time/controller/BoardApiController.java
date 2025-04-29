@@ -50,7 +50,7 @@ public class BoardApiController {
     @PostMapping("/api/auth/point")
     public ResponseDto<String> addPoint(@RequestBody @Valid PointDto pointDto) throws IOException {
         boardService.addPoint(pointDto);
-        return new ResponseDto<String>(HttpStatus.OK.value(), "위치 설정 성공");
+        return new ResponseDto<>(HttpStatus.OK.value(), "위치 설정 성공");
     }
 
     @PostMapping("/api/auth/board")
@@ -58,12 +58,12 @@ public class BoardApiController {
                                           @AuthenticationPrincipal PrincipalDetail principalDetail) throws IOException {
         Long boardId = boardService.write(boardDto, principalDetail.getMember());
         notificationService.keywordNotification(boardId);
-        return new ResponseDto<String>(HttpStatus.OK.value(), "게시글 작성 완료");
+        return new ResponseDto<>(HttpStatus.OK.value(), "게시글 작성 완료");
     }
 
     @GetMapping("/api/board")
     public ResponseDto<BoardResponseWrapperSpatial> findAll(@ModelAttribute @Valid BoardSearchDto requestDto,
-                          @AuthenticationPrincipal PrincipalDetail principalDetail) {
+                                                            @AuthenticationPrincipal PrincipalDetail principalDetail) {
         Pageable pageable = PageRequest.of(requestDto.getPageNum(), 8);
         List<BoardResponseDto.BoardSearchSpatial> boardDistanceDtos = boardRepository.searchBoardsSpatialNative(
                 requestDto, principalDetail.getMember().getLocation(), pageable);
@@ -79,7 +79,8 @@ public class BoardApiController {
     }
 
     @GetMapping("/api/board/{id}")
-    public Result boardDetail(@PathVariable("id") Long id, @AuthenticationPrincipal PrincipalDetail principalDetail) {
+    public ResponseDto<BoardDetailResponseDto> boardDetail(@PathVariable("id") Long id,
+                                                           @AuthenticationPrincipal PrincipalDetail principalDetail) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
         String scrapStus = "YES";
@@ -103,7 +104,7 @@ public class BoardApiController {
         BoardDetailResponseDto boardDetailResponseDto = getBoardDetailResponseDto(
                 board, scrapStus, who, roomName, collect);
 
-        return new Result<>(boardDetailResponseDto);
+        return new ResponseDto<>(HttpStatus.OK.value(), boardDetailResponseDto);
     }
 
     @PutMapping("/api/auth/board/{id}")
@@ -119,7 +120,7 @@ public class BoardApiController {
         }
 
         boardService.update(id, boardUpdateDto);
-        return new ResponseDto<String>(HttpStatus.OK.value(), "게시글 수정 완료");
+        return new ResponseDto<>(HttpStatus.OK.value(), "게시글 수정 완료");
     }
 
     @DeleteMapping("/api/auth/board/{id}")
@@ -134,7 +135,7 @@ public class BoardApiController {
         }
 
         boardService.delete(id);
-        return new ResponseDto<String>(HttpStatus.OK.value(), "게시글 삭제 완료");
+        return new ResponseDto<>(HttpStatus.OK.value(), "게시글 삭제 완료");
     }
 
     //<------------------채팅 버튼 별 board 상태 변경-------------------->
@@ -143,14 +144,14 @@ public class BoardApiController {
                                      @PathVariable("chatId") Long chatId,
                                      @AuthenticationPrincipal PrincipalDetail principalDetail) throws IOException {
         boardService.choosePayMeth(paymethdto, boardId, chatId, principalDetail.getMember());
-        return new ResponseDto<String>(HttpStatus.OK.value(), "거래중으로 변경 됨");
+        return new ResponseDto<>(HttpStatus.OK.value(), "거래중으로 변경 됨");
     }
 
     @PutMapping("api/board/{boardId}/chat/{chatId}/cancel")
     public ResponseDto cancelTrade(@PathVariable("boardId") Long boardId, @PathVariable("chatId") Long chatId)
             throws IOException {
         boardService.cancelTrade(boardId, chatId);
-        return new ResponseDto<String>(HttpStatus.OK.value(), "판매중으로 변경 됨");
+        return new ResponseDto<>(HttpStatus.OK.value(), "판매중으로 변경 됨");
     }
 
     @PutMapping("api/board/{boardId}/chat/{chatId}/complete")
@@ -158,42 +159,44 @@ public class BoardApiController {
             throws IOException {
         boardService.completeTrade(boardId, chatId);
         notificationService.transactionComplete(chatId);
-        return new ResponseDto<String>(HttpStatus.OK.value(), "판매완료로 변경 됨");
+        return new ResponseDto<>(HttpStatus.OK.value(), "판매완료로 변경 됨");
     }
 
     //seller - 글 작성자, buyer - 상대방
     @GetMapping("/api/board/{boardId}/chat/{chatId}/who")
-    public Result getRole(@PathVariable("boardId") Long boardId, @PathVariable("chatId") Long chatId,
-                          @AuthenticationPrincipal PrincipalDetail principalDetail) throws IOException {
+    public ResponseDto<WhoResponseDto> getRole(@PathVariable("boardId") Long boardId,
+                                               @PathVariable("chatId") Long chatId,
+                                               @AuthenticationPrincipal PrincipalDetail principalDetail)
+            throws IOException {
         WhoResponseDto whoResponseDto = boardService.getRole(boardId, chatId, principalDetail.getMember());
-        return new Result<>(whoResponseDto);
+        return new ResponseDto<>(HttpStatus.OK.value(), whoResponseDto);
     }
 
     @GetMapping("/api/board/{boardId}/chat/{chatId}/account")
-    public Result getAccount(@PathVariable("chatId") Long chatId) {
+    public ResponseDto<AccountResponseDto> getAccount(@PathVariable("chatId") Long chatId) {
         AccountResponseDto dto = boardService.getAccount(chatId);
-        return new Result<>(dto);
+        return new ResponseDto<>(HttpStatus.OK.value(), dto);
     }
 
     //<------------------거래한 글, 구매한 글-------------------->
     @GetMapping("users/{userId}/boards/write")
-    public Result writeList(@PathVariable("userId") Long userId) {
+    public ResponseDto<List<BoardListResponseDto>> writeList(@PathVariable("userId") Long userId) {
         List<Board> boards = boardService.writeList(userId);
 
         List<BoardListResponseDto> collect = boards.stream().map(BoardApiController::getBoardListResponseDto)
                 .collect(Collectors.toList());
 
-        return new Result(collect);
+        return new ResponseDto<>(HttpStatus.OK.value(), collect);
     }
 
     @GetMapping("users/{userId}/boards/trade")
-    public Result tradeList(@PathVariable("userId") Long userId) {
+    public ResponseDto<List<BoardListResponseDto>> tradeList(@PathVariable("userId") Long userId) {
         List<Board> boards = boardService.tradeList(userId);
 
         List<BoardListResponseDto> collect = boards.stream().map(BoardApiController::getBoardListResponseDto)
                 .collect(Collectors.toList());
 
-        return new Result(collect);
+        return new ResponseDto<>(HttpStatus.OK.value(), collect);
     }
 
     private static BoardListResponseDto getBoardListResponseDto(Board board) {
@@ -251,11 +254,5 @@ public class BoardApiController {
     public class BoardResponseWrapperSpatial {
         private UserAddressResponseDto userAddress;
         private List<BoardSearchSpatial> boards;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class Result<T> {
-        private T data;
     }
 }

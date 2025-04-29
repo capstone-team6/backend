@@ -8,10 +8,7 @@ import backend.time.repository.ScrapRepository;
 import backend.time.service.ScrapService;
 import jakarta.validation.Valid;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,19 +39,13 @@ public class ScrapApiController {
     }
 
     @GetMapping("api/scrap-list")
-    public Result scrapList(@ModelAttribute @Valid ScrapDto scrapDto,
-                            @AuthenticationPrincipal PrincipalDetail principalDetail) {
+    public ResponseDto<List<ScrapListResponseDto>> scrapList(@ModelAttribute @Valid ScrapDto scrapDto,
+                                                             @AuthenticationPrincipal PrincipalDetail principalDetail) {
         Pageable pageable = PageRequest.of(scrapDto.getPageNum(), 8, Sort.by(Sort.Direction.DESC, "createDate"));
         List<ScrapListResponseDto> collect = scrapRepository.getScrapList(pageable,
                 principalDetail.getMember().getId(), principalDetail.getMember()
                         .getLocation());
 
-        return new Result(collect);
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class Result<T> {
-        private T data;
+        return new ResponseDto<>(HttpStatus.OK.value(), collect);
     }
 }
