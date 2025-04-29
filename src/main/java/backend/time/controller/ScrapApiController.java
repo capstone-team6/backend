@@ -7,6 +7,7 @@ import backend.time.dto.response.BoardResponseDto.ScrapListResponseDto;
 import backend.time.repository.ScrapRepository;
 import backend.time.service.ScrapService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class ScrapApiController {
     public Result scrapList(@ModelAttribute @Valid ScrapDto scrapDto,
                             @AuthenticationPrincipal PrincipalDetail principalDetail) {
         Pageable pageable = PageRequest.of(scrapDto.getPageNum(), 8, Sort.by(Sort.Direction.DESC, "createDate"));
-        Page<ScrapListResponseDto> collect = scrapRepository.getScrapList(pageable,
+        List<ScrapListResponseDto> collect = scrapRepository.getScrapList(pageable,
                 principalDetail.getMember().getId(), principalDetail.getMember()
                         .getLocation());
 

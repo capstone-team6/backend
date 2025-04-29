@@ -212,7 +212,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository {
     }
 
     @Override
-    public Page<BoardSearchSpatial> searchBoardsSpatialNative(BoardSearchDto requestDto, Point userLocation,
+    public List<BoardSearchSpatial> searchBoardsSpatialNative(BoardSearchDto requestDto, Point userLocation,
                                                               Pageable pageable) {
         String baseQuery = """
                 (SELECT b.id, b.title, b.item_time, b.item_price, b.created_date, b.chat_count, b.scrap_count,
@@ -311,7 +311,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository {
 
         long total = ((Number) countQ.getSingleResult()).longValue();
 
-        return PageableExecutionUtils.getPage(content, pageable, () -> total);
+        return content;
     }
 }
 

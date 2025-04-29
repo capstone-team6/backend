@@ -62,10 +62,10 @@ public class BoardApiController {
     }
 
     @GetMapping("/api/board")
-    public Result findAll(@ModelAttribute @Valid BoardSearchDto requestDto,
+    public ResponseDto<BoardResponseWrapperSpatial> findAll(@ModelAttribute @Valid BoardSearchDto requestDto,
                           @AuthenticationPrincipal PrincipalDetail principalDetail) {
         Pageable pageable = PageRequest.of(requestDto.getPageNum(), 8);
-        Page<BoardResponseDto.BoardSearchSpatial> boardDistanceDtos = boardRepository.searchBoardsSpatialNative(
+        List<BoardResponseDto.BoardSearchSpatial> boardDistanceDtos = boardRepository.searchBoardsSpatialNative(
                 requestDto, principalDetail.getMember().getLocation(), pageable);
         UserAddressResponseDto userAddressResponseDto = UserAddressResponseDto.builder()
                 .userLatitude(principalDetail.getMember().getLatitude())
@@ -75,7 +75,7 @@ public class BoardApiController {
         BoardResponseWrapperSpatial responseWrapper = new BoardResponseWrapperSpatial();
         responseWrapper.setUserAddress(userAddressResponseDto);
         responseWrapper.setBoards(boardDistanceDtos);
-        return new Result<>(responseWrapper);
+        return new ResponseDto<>(HttpStatus.OK.value(), responseWrapper);
     }
 
     @GetMapping("/api/board/{id}")
@@ -250,7 +250,7 @@ public class BoardApiController {
     @Data
     public class BoardResponseWrapperSpatial {
         private UserAddressResponseDto userAddress;
-        private Page<BoardSearchSpatial> boards;
+        private List<BoardSearchSpatial> boards;
     }
 
     @Data

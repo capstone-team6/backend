@@ -3,10 +3,7 @@ package backend.time.repository;
 import static backend.time.model.board.QBoard.board;
 import static backend.time.model.board.QImage.image;
 
-import backend.time.dto.response.BoardResponseDto.BoardListResponseDto;
-import backend.time.dto.response.BoardResponseDto.BoardSearchSpatial;
 import backend.time.dto.response.BoardResponseDto.ScrapListResponseDto;
-import backend.time.dto.response.QBoardResponseDto_BoardListResponseDto;
 import backend.time.dto.response.QBoardResponseDto_ScrapListResponseDto;
 import backend.time.model.board.QImage;
 import com.querydsl.core.types.Order;
@@ -20,10 +17,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import org.locationtech.jts.geom.Point;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.support.PageableExecutionUtils;
 
 public class CustomScrapRepositoryImpl implements CustomScrapRepository {
     private final JPAQueryFactory queryFactory;
@@ -33,7 +28,7 @@ public class CustomScrapRepositoryImpl implements CustomScrapRepository {
     }
 
     @Override
-    public Page<ScrapListResponseDto> getScrapList(Pageable pageable, Long memberId, Point userLocation) {
+    public List<ScrapListResponseDto> getScrapList(Pageable pageable, Long memberId, Point userLocation) {
         QImage minImage = new QImage("minImage");
         NumberTemplate<Double> distanceExpr = Expressions.numberTemplate(Double.class,
                 "ST_Distance_Sphere({0}, {1})",
@@ -80,6 +75,6 @@ public class CustomScrapRepositoryImpl implements CustomScrapRepository {
                 .from(board)
                 .where(board.member.id.eq(memberId));
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return content;
     }
 }
