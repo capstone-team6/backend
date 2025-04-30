@@ -1,8 +1,11 @@
 package backend.time.controller;
 
+import static backend.time.dto.request.BoardRequestDto.*;
+import static backend.time.dto.request.PayRequestDto.*;
+
 import backend.time.config.auth.PrincipalDetail;
 import backend.time.dto.ResponseDto;
-import backend.time.dto.request.*;
+import backend.time.dto.request.BoardRequestDto.PointDto;
 import backend.time.dto.response.BoardResponseDto;
 import backend.time.dto.response.BoardResponseDto.AccountResponseDto;
 import backend.time.dto.response.BoardResponseDto.BoardDetailResponseDto;
@@ -19,7 +22,6 @@ import backend.time.service.BoardService;
 import backend.time.service.ChattingService;
 import backend.time.service.NotificationService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +56,7 @@ public class BoardApiController {
     }
 
     @PostMapping("/api/auth/board")
-    public ResponseDto<String> writeBoard(@ModelAttribute @Valid BoardDto boardDto,
+    public ResponseDto<String> writeBoard(@ModelAttribute @Valid WriteBoardDto boardDto,
                                           @AuthenticationPrincipal PrincipalDetail principalDetail) throws IOException {
         Long boardId = boardService.write(boardDto, principalDetail.getMember());
         notificationService.keywordNotification(boardId);

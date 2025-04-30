@@ -1,6 +1,6 @@
 package backend.time.controller;
 
-import backend.time.dto.KeywordDto;
+import backend.time.dto.request.KeywordRequestDto;
 import backend.time.dto.ResponseDto;
 import backend.time.model.Keyword;
 import backend.time.model.Member.Member;
@@ -28,7 +28,7 @@ public class KeywordController {
     private final MemberService memberService;
 
     @PostMapping("/keyword")
-    public ResponseDto<String> keyword(@AuthenticationPrincipal UserDetails userDetails, @RequestBody KeywordDto keywordDto) {
+    public ResponseDto<String> keyword(@AuthenticationPrincipal UserDetails userDetails, @RequestBody KeywordRequestDto keywordDto) {
         log.info("keyword = {}", userDetails.getUsername());
         log.info("keyword = {}", keywordDto.getKeyword());
         String keyword = keywordService.save(keywordDto, userDetails.getUsername());

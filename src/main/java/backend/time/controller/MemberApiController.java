@@ -1,12 +1,15 @@
 package backend.time.controller;
 
+import static backend.time.dto.request.MemberRequestDto.*;
+
 import backend.time.config.auth.PrincipalDetail;
 import backend.time.config.auth.PrincipalDetailService;
 import backend.time.config.jwt.JwtTokenUtil;
 import backend.time.dto.*;
+import backend.time.dto.request.MemberRequestDto.TokenDto;
 import backend.time.dto.response.EvaluationResponseDto;
+import backend.time.dto.response.EvaluationResponseDto.ServiceEvaluationResponseDto;
 import backend.time.dto.response.MemberResponseDto;
-import backend.time.dto.response.ServiceEvaluationResponseDto;
 import backend.time.model.Member.Member;
 import backend.time.model.Member.Member_Role;
 import backend.time.model.board.BoardCategory;
@@ -177,7 +180,7 @@ public class MemberApiController {
 
     @GetMapping("/member/{id}/evaluation") // 내 평가 조회 / 남 평가 조회 -> 매너 평가 조회 & 각 카테고리별 별 개수
     public Result<Object> getEvaluation(@AuthenticationPrincipal PrincipalDetail principalDetail, @PathVariable("id") Long memberId){
-        EvaluationResponseDto evaluationResponseDto = memberService.getEvaluation(memberId);
+        EvaluationResponseDto.getEvaluationResponseDto evaluationResponseDto = memberService.getEvaluation(memberId);
         return new Result<>(evaluationResponseDto);
     }
     @GetMapping("/member/{memberId}/evaluation/{categoryId}")

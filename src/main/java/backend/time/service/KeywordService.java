@@ -1,6 +1,6 @@
 package backend.time.service;
 
-import backend.time.dto.KeywordDto;
+import backend.time.dto.request.KeywordRequestDto;
 import backend.time.exception.MemberNotFoundException;
 import backend.time.model.Keyword;
 import backend.time.model.Member.Member;
@@ -24,7 +24,7 @@ public class KeywordService {
     }
 
     @Transactional
-    public String save(KeywordDto keywordDto, String kakaoId) {
+    public String save(KeywordRequestDto keywordDto, String kakaoId) {
         String keyword = keywordDto.getKeyword();
         Member member = memberRepository.findByKakaoId(kakaoId).orElseThrow(() -> {throw new MemberNotFoundException();});
 

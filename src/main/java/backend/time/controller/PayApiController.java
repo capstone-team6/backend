@@ -1,10 +1,10 @@
 package backend.time.controller;
 
 import backend.time.config.auth.PrincipalDetail;
-import backend.time.dto.PayResponseDto;
+import backend.time.dto.request.PayRequestDto.PostPrepareDto;
+import backend.time.dto.request.PayRequestDto.VerifyAndChargeDto;
+import backend.time.dto.response.PayResponseDto;
 import backend.time.dto.ResponseDto;
-import backend.time.dto.request.VerifyAndChargeDto;
-import backend.time.dto.request.PostPrepareDto;
 import backend.time.service.PayService;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import lombok.RequiredArgsConstructor;

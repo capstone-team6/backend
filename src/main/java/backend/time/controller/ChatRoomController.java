@@ -1,8 +1,8 @@
 package backend.time.controller;
 
 import backend.time.dto.ChatDto;
-import backend.time.dto.ChatRoomResponseDto;
-import backend.time.dto.RoomEnterDto;
+import backend.time.dto.request.ChatRequestDto.RoomEnterDto;
+import backend.time.dto.response.ChatResponseDto.ChatRoomResponseDto;
 import backend.time.model.ChatImage;
 import backend.time.model.ChatMessage;
 import backend.time.model.ChatRoom;

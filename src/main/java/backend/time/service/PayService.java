@@ -3,9 +3,9 @@ package backend.time.service;
 import static backend.time.model.pay.PayState.BEFORE;
 import static backend.time.model.pay.PayState.COMPLETE;
 
-import backend.time.dto.PayResponseDto;
-import backend.time.dto.request.VerifyAndChargeDto;
-import backend.time.dto.request.PostPrepareDto;
+import backend.time.dto.request.PayRequestDto.PostPrepareDto;
+import backend.time.dto.request.PayRequestDto.VerifyAndChargeDto;
+import backend.time.dto.response.PayResponseDto;
 import backend.time.model.Member.Member;
 import backend.time.model.pay.PayCharge;
 import backend.time.repository.MemberRepository;

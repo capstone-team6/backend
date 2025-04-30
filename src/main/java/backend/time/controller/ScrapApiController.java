@@ -2,7 +2,7 @@ package backend.time.controller;
 
 import backend.time.config.auth.PrincipalDetail;
 import backend.time.dto.ResponseDto;
-import backend.time.dto.request.ScrapDto;
+import backend.time.dto.request.ScrapRequestDto;
 import backend.time.dto.response.BoardResponseDto.ScrapListResponseDto;
 import backend.time.repository.ScrapRepository;
 import backend.time.service.ScrapService;
@@ -39,7 +39,7 @@ public class ScrapApiController {
     }
 
     @GetMapping("api/scrap-list")
-    public ResponseDto<List<ScrapListResponseDto>> scrapList(@ModelAttribute @Valid ScrapDto scrapDto,
+    public ResponseDto<List<ScrapListResponseDto>> scrapList(@ModelAttribute @Valid ScrapRequestDto scrapDto,
                                                              @AuthenticationPrincipal PrincipalDetail principalDetail) {
         Pageable pageable = PageRequest.of(scrapDto.getPageNum(), 8, Sort.by(Sort.Direction.DESC, "createDate"));
         List<ScrapListResponseDto> collect = scrapRepository.getScrapList(pageable,

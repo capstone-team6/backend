@@ -1,6 +1,9 @@
 package backend.time.service;
 
 import backend.time.dto.request.*;
+import backend.time.dto.request.BoardRequestDto.BoardUpdateDto;
+import backend.time.dto.request.BoardRequestDto.PointDto;
+import backend.time.dto.request.BoardRequestDto.WriteBoardDto;
 import backend.time.dto.response.BoardResponseDto.AccountResponseDto;
 import backend.time.dto.response.BoardResponseDto.WhoResponseDto;
 import backend.time.model.ChatRoom;
@@ -31,6 +34,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static backend.time.dto.request.PayRequestDto.*;
 import static backend.time.model.board.BoardState.*;
 import static backend.time.model.pay.PayMethod.*;
 import static backend.time.model.board.BoardType.SELL;
@@ -69,7 +73,7 @@ public class BoardService {
     }
 
     @Transactional
-    public Long write(BoardDto boardDto, Member member) throws IOException {
+    public Long write(WriteBoardDto boardDto, Member member) throws IOException {
         for (String word : forbiddenWords) {
             if (boardDto.getTitle().contains(word) || boardDto.getContent().contains(word)) {
                 throw new IllegalArgumentException("제목이나 내용에 금지된 단어가 포함되어 있습니다: " + word);
@@ -97,7 +101,7 @@ public class BoardService {
         return boardId;
     }
 
-    private Board createAndSaveBoard(BoardDto boardDto, Member member, String address, Point location, double longitude,
+    private Board createAndSaveBoard(WriteBoardDto boardDto, Member member, String address, Point location, double longitude,
                                      double latitude) {
         Board board = Board.builder()
                 .category(BoardCategory.valueOf(boardDto.getCategory()))
@@ -116,7 +120,7 @@ public class BoardService {
         return boardRepository.save(board);
     }
 
-    private void addNewImages(BoardDto boardDto, Board board) throws IOException {
+    private void addNewImages(WriteBoardDto boardDto, Board board) throws IOException {
         if (boardDto.getImages() != null) {
             if (boardDto.getImages().size() > 5) {
                 throw new IllegalArgumentException("최대 5개의 이미지만 업로드할 수 있습니다.");

@@ -1,12 +1,12 @@
 package backend.time.service;
 
-
-import backend.time.config.auth.PrincipalDetail;
-import backend.time.dto.MemberDto;
-import backend.time.dto.*;
+import backend.time.dto.request.MemberRequestDto.EvaluationDto;
 import backend.time.dto.response.EvaluationResponseDto;
+import backend.time.dto.response.EvaluationResponseDto.MannerEvaluationDto;
+import backend.time.dto.response.EvaluationResponseDto.ServiceEvaluationDto;
+import backend.time.dto.response.EvaluationResponseDto.ServiceEvaluationResponseDto;
+import backend.time.dto.response.EvaluationResponseDto.ServiceEvaluationStarDto;
 import backend.time.dto.response.MemberResponseDto;
-import backend.time.dto.response.ServiceEvaluationResponseDto;
 import backend.time.exception.MemberNotFoundException;
 import backend.time.model.Member.*;
 import backend.time.model.Objection.Objection;
@@ -15,7 +15,6 @@ import backend.time.model.board.BoardCategory;
 import backend.time.repository.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import io.lettuce.core.ScriptOutputType;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -471,7 +470,7 @@ public class MemberService {
 
 
     //평가 보기
-    public EvaluationResponseDto getEvaluation(Long memberId){
+    public EvaluationResponseDto.getEvaluationResponseDto getEvaluation(Long memberId){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()->new IllegalArgumentException("존재하지 않는 회원입니다."));
         List<MannerEvaluationDto> mannerEvaluationDtoList = new ArrayList<>();
@@ -515,7 +514,7 @@ public class MemberService {
 
 
 //        System.out.println("getServiceEvaluationList size : "+member.getServiceEvaluationList().size() );
-        return EvaluationResponseDto.builder()
+        return EvaluationResponseDto.getEvaluationResponseDto.builder()
                 .mannerEvaluationList(mannerEvaluationDtoList)
                 .serviceEvaluationStarDtoList(starDtoList)
                 .build();
@@ -523,7 +522,7 @@ public class MemberService {
     //각 서비스의 평균 점수 계산
 
 
-    public ServiceEvaluationResponseDto getCategoryEvaluation(Long memberId,BoardCategory category){
+    public ServiceEvaluationResponseDto getCategoryEvaluation(Long memberId, BoardCategory category){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
         List<ServiceEvaluation> serviceEvaluationList = serviceEvaluationRepository.findByMemberAndBoardCategory(member, category);

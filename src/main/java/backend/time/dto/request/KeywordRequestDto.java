@@ -1,4 +1,4 @@
-package backend.time.dto;
+package backend.time.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TokenDto {
-    String token;
+public class KeywordRequestDto {
+    private String keyword;
 }

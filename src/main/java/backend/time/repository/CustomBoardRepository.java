@@ -1,6 +1,6 @@
 package backend.time.repository;
 
-import backend.time.dto.request.BoardSearchDto;
+import backend.time.dto.request.BoardRequestDto.BoardSearchDto;
 import backend.time.dto.response.BoardResponseDto.BoardSearchHaversine;
 import backend.time.dto.response.BoardResponseDto.BoardSearchSpatial;
 import java.util.List;
