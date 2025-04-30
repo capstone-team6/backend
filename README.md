@@ -49,192 +49,48 @@
 ## 6. 프로젝트 구조
 
 ```xml
-src
-├─main
-│  ├─generated
-│  ├─java
-│  │  └─backend
-│  │      └─time
-│  │          │  TimeApplication.java
-│  │          │
-│  │          ├─config
-│  │          │  │  SecurityConfig.java
-│  │          │  │  WebConfig.java
-│  │          │  │  WebSocketConfig.java
-│  │          │  │
-│  │          │  ├─auth
-│  │          │  │      PrincipalDetail.java
-│  │          │  │      PrincipalDetailService.java
-│  │          │  │
-│  │          │  └─jwt
-│  │          │          JwtRequestFilter.java
-│  │          │          JwtTokenUtil.java
-│  │          │
-│  │          ├─controller
-│  │          │      BoardApiController.java
-│  │          │      BoardController.java
-│  │          │      ChatController.java
-│  │          │      ChatRoomController.java
-│  │          │      KeywordController.java
-│  │          │      MemberApiController.java
-│  │          │      MyPageController.java
-│  │          │      NotificationController.java
-│  │          │      ObjectionApiController.java
-│  │          │      PayController.java
-│  │          │      ReportApiController.java
-│  │          │      ScrapApiController.java
-│  │          │
-│  │          ├─dto
-│  │          │  │  ActivityNotificationDto.java
-│  │          │  │  ActivityNotificationListDto.java
-│  │          │  │  BoardDistanceDto.java
-│  │          │  │  BoardListResponseDto.java
-│  │          │  │  ChatDto.java
-│  │          │  │  ChatResponseDto.java
-│  │          │  │  ChatRoomDetailDto.java
-│  │          │  │  ChatRoomResponseDto.java
-│  │          │  │  EvaluationDto.java
-│  │          │  │  KakaoDto.java
-│  │          │  │  KeywordDto.java
-│  │          │  │  KeywordNotificationDto.java
-│  │          │  │  KeywordNotificationListDto.java
-│  │          │  │  MannerEvaluationDto.java
-│  │          │  │  MemberDto.java
-│  │          │  │  NicknameDto.java
-│  │          │  │  ObjectionDto.java
-│  │          │  │  PayResponseDto.java
-│  │          │  │  ResponseDto.java
-│  │          │  │  RoomEnterDto.java
-│  │          │  │  ServiceEvaluationDto.java
-│  │          │  │  ServiceEvaluationStarDto.java
-│  │          │  │  TokenDto.java
-│  │          │  │  UnfinishedMemberDto.java
-│  │          │  │
-│  │          │  ├─request
-│  │          │  │      BoardDto.java
-│  │          │  │      BoardSearchDto.java
-│  │          │  │      BoardUpdateDto.java
-│  │          │  │      PayDto.java
-│  │          │  │      PayMethDto.java
-│  │          │  │      PointDto.java
-│  │          │  │      ReportDto.java
-│  │          │  │      ScrapDto.java
-│  │          │  │
-│  │          │  └─response
-│  │          │          EvaluationResponseDto.java
-│  │          │          MemberResponseDto.java
-│  │          │          ObjectionResponseDto.java
-│  │          │          ServiceEvaluationResponseDto.java
-│  │          │
-│  │          ├─exception
-│  │          │      MemberNotFoundException.java
-│  │          │
-│  │          ├─handler
-│  │          │      GlobalExceptionHandler.java
-│  │          │      KakaoLoginFailureHandler.java
-│  │          │      KakaoLoginSuccessHandler.java
-│  │          │
-│  │          ├─model
-│  │          │  │  ActivityNotification.java
-│  │          │  │  ActivityType.java
-│  │          │  │  ChatImage.java
-│  │          │  │  ChatMessage.java
-│  │          │  │  ChatRoom.java
-│  │          │  │  ChatType.java
-│  │          │  │  Keyword.java
-│  │          │  │  KeywordNotification.java
-│  │          │  │  Report.java
-│  │          │  │  ReportCategory.java
-│  │          │  │  Scrap.java
-│  │          │  │
-│  │          │  ├─board
-│  │          │  │      Board.java
-│  │          │  │      BoardCategory.java
-│  │          │  │      BoardState.java
-│  │          │  │      BoardType.java
-│  │          │  │      Image.java
-│  │          │  │
-│  │          │  ├─Member
-│  │          │  │      MannerEvaluation.java
-│  │          │  │      MannerEvaluationCategory.java
-│  │          │  │      Member.java
-│  │          │  │      Member_Role.java
-│  │          │  │      ServiceEvaluation.java
-│  │          │  │      ServiceEvaluationCategory.java
-│  │          │  │      ServiceStar.java
-│  │          │  │
-│  │          │  ├─Objection
-│  │          │  │      Objection.java
-│  │          │  │      ObjectionImage.java
-│  │          │  │      ObjectionStatus.java
-│  │          │  │
-│  │          │  └─pay
-│  │          │          Account.java
-│  │          │          PayCharge.java
-│  │          │          PayMethod.java
-│  │          │          PayStorage.java
-│  │          │
-│  │          ├─repository
-│  │          │      AccountRepository.java
-│  │          │      ActivityNotificationRepository.java
-│  │          │      BoardRepository.java
-│  │          │      ChatImageRepository.java
-│  │          │      ChatRepository.java
-│  │          │      ChatRoomRepository.java
-│  │          │      CustomBoardRepository.java
-│  │          │      CustomBoardRepositoryImpl.java
-│  │          │      ImageRepository.java
-│  │          │      KeywordNotificationRepository.java
-│  │          │      KeywordRepository.java
-│  │          │      MannerEvaluationRepository.java
-│  │          │      MemberRepository.java
-│  │          │      ObjectionImageRepository.java
-│  │          │      ObjectionRepository.java
-│  │          │      PayChargeRepository.java
-│  │          │      PayStorageRepository.java
-│  │          │      ReportRepository.java
-│  │          │      ScrapRepository.java
-│  │          │      ServiceEvaluationRepository.java
-│  │          │      ServiceStarRepository.java
-│  │          │
-│  │          ├─service
-│  │          │      BoardService.java
-│  │          │      BoardServiceImpl.java
-│  │          │      ChattingService.java
-│  │          │      ChattingServiceImpl.java
-│  │          │      ImageManager.java
-│  │          │      KeywordService.java
-│  │          │      MemberService.java
-│  │          │      MemberServiceImpl.java
-│  │          │      NotificationService.java
-│  │          │      ObjectionService.java
-│  │          │      PayService.java
-│  │          │      ReportService.java
-│  │          │      ScrapService.java
-│  │          │
-│  │          └─specification
-│  │                  BoardSpecification.java
-│  │                  ScrapSpecification.java
-│  │
-│  └─resources
-│      │  application-mysql.properties
-│      │  application.properties
-│      │
-│      └─static
-│          └─images
-│              ├─jpeg
-│              ├─jpg
-│              └─png
-└─test
-    └─java
-        └─backend
-            └─time
-                │  TimeApplicationTests.java
-                │
-                └─chat
-                        BoardControllerTest.java
-                        ChatRoomControllerTest.java
-                        ChattingServiceTest.java
+├───main
+│   ├───generated
+│   │   └───backend
+│   │       └───time
+│   │           ├───dto
+│   │           │   └───response
+│   │           └───model
+│   │               ├───board
+│   │               ├───Member
+│   │               ├───Objection
+│   │               └───pay
+│   ├───java
+│   │   └───backend
+│   │       └───time
+│   │           ├───config
+│   │           │   ├───auth
+│   │           │   └───jwt
+│   │           ├───controller
+│   │           ├───dto
+│   │           │   ├───request
+│   │           │   └───response
+│   │           ├───exception
+│   │           ├───handler
+│   │           ├───model
+│   │           │   ├───board
+│   │           │   ├───Member
+│   │           │   ├───Objection
+│   │           │   └───pay
+│   │           ├───repository
+│   │           ├───service
+│   │           └───specification
+│   └───resources
+│       └───static
+│           └───images
+│               ├───jpeg
+│               ├───jpg
+│               └───png
+└───test
+    └───java
+        └───backend
+            └───time
+                └───chat
 ```
 <br><br><br>
 
@@ -253,6 +109,7 @@ src
 ### 게시글
 
 - 검색 : 먼저 SQL 문에서 하버사인 공식을 활용하여 10km 반경 내의 데이터를 필터링한 후, 얻어진 게시글의 ID, 카테고리, 제목, 내용을 바탕으로 **Specification** 객체를 사용하여 추가적인 필터링을 수행했습니다. 또한, 페이지 번호(pageNum)를 받아 8개씩 게시글을 조회할 수 있도록 **Pageable** 인터페이스를 활용하여 페이징 기능을 구현하였습니다.
+-> [25.04.30] spatial index + QueryDSL 방식으로 리팩토링
 - 이미지 : 이미지를 **MultipartFile** 형태로 받아 UUID를 이용해 고유한 파일 이름을 생성한 후, DB에 기존 파일명과 함께 해당 이름과 확장자 형식으로 저장하였습니다. 또한, Nginx 서버의 특정 폴더에 이미지를 저장하여 프론트에서 해당 주소로 이미지에 접근할 수 있도록 하였습니다.
 
 ### 알림
@@ -284,6 +141,7 @@ src
 - 만나서 결제 : 만나서 결제 후 시간 판매자가 거래 완료 또는 거래 취소를 선택할 수 있습니다.
 - 틈새페이
     - 마이페이지에서 포인트 충전 시 → **포트원 API** 사용하여 프론트에서 거래고유번호를 받아 카카오페이 결제 검증이 이루어지고 검증 로직에 통과하면 포인트 충전이 완료됩니다.
+      -> [25.04.30] 결제금액 위변조 방지 로직 추가 (사전검증을 위한 사전등록, 사후검증 로직 추가)
     - 틈새페이 방법 선택 시 → 바로 시간 구매자의 포인트가 차감되고, 거래완료 시 포인트가 거래자에게 이동되고, 거래 취소 시 다시 포인트가 복구됩니다.
         
         (안전한 거래를 위하여 모든 거래자가 거래 완료를 눌러야 포인트가 이동됩니다.)
