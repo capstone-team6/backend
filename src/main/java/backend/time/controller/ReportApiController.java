@@ -2,7 +2,7 @@ package backend.time.controller;
 
 import backend.time.config.auth.PrincipalDetail;
 import backend.time.dto.ResponseDto;
-import backend.time.dto.request.ReportDto;
+import backend.time.dto.request.ReportRequestDto;
 import backend.time.service.ReportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class ReportApiController {
     private final ReportService reportService;
     @PostMapping("/board/{boardId}/report")
-    public ResponseDto<Map<String, Object>> postReport(@AuthenticationPrincipal PrincipalDetail principalDetail, @PathVariable("boardId") Long boardId,@RequestBody @Valid ReportDto reportDto){
+    public ResponseDto<Map<String, Object>> postReport(@AuthenticationPrincipal PrincipalDetail principalDetail, @PathVariable("boardId") Long boardId,@RequestBody @Valid ReportRequestDto reportDto){
         boolean isOk = reportService.postReport(principalDetail.getMember().getId(), boardId, reportDto);
         Map<String, Object> data = new HashMap<>();
         data.put("report",isOk);

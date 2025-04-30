@@ -1,4 +1,4 @@
-package backend.time.dto;
+package backend.time.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ObjectionDto {
+public class ObjectionRequestDto {
     @NotEmpty
     @Length(max = 30)
     String title;

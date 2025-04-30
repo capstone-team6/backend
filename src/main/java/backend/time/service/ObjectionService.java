@@ -1,6 +1,6 @@
 package backend.time.service;
 
-import backend.time.dto.ObjectionDto;
+import backend.time.dto.request.ObjectionRequestDto;
 import backend.time.dto.response.ObjectionResponseDto;
 import backend.time.model.Member.Member;
 import backend.time.model.Objection.Objection;
@@ -26,7 +26,7 @@ public class ObjectionService {
     private final ImageManager imageManager;
     //이미지 아직 안함
     @Transactional
-    public void createObjection(Member member, ObjectionDto objectionDto)throws IOException {
+    public void createObjection(Member member, ObjectionRequestDto objectionDto)throws IOException {
         Member objector = memberRepository.findById(member.getId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다.ㅣ"));
         Member objected = memberRepository.findById(objectionDto.getObjectedId())

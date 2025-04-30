@@ -1,7 +1,7 @@
 package backend.time.controller;
 
-import backend.time.dto.ActivityNotificationDto;
-import backend.time.dto.KeywordNotificationDto;
+import static backend.time.dto.response.NotificationResponseDto.*;
+
 import backend.time.dto.ResponseDto;
 import backend.time.model.Member.Member;
 import backend.time.service.MemberServiceImpl;

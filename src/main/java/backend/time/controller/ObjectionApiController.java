@@ -1,7 +1,7 @@
 package backend.time.controller;
 
 import backend.time.config.auth.PrincipalDetail;
-import backend.time.dto.ObjectionDto;
+import backend.time.dto.request.ObjectionRequestDto;
 import backend.time.dto.response.ObjectionResponseDto;
 import backend.time.dto.ResponseDto;
 import backend.time.service.ObjectionService;
@@ -25,7 +25,7 @@ public class ObjectionApiController {
     private final ObjectionService objectionService;
     //이의신청
     @PostMapping("/post/objection") //이름 바꾸기
-    public ResponseDto<Map<String,Object>> createObjection(@AuthenticationPrincipal PrincipalDetail principalDetail, @ModelAttribute @Valid ObjectionDto objectionDto) throws IOException {
+    public ResponseDto<Map<String,Object>> createObjection(@AuthenticationPrincipal PrincipalDetail principalDetail, @ModelAttribute @Valid ObjectionRequestDto objectionDto) throws IOException {
         objectionService.createObjection(principalDetail.getMember(), objectionDto);
         Map<String, Object> data = new HashMap<>();
         data.put("objection",true);

@@ -1,6 +1,6 @@
 package backend.time.service;
 
-import backend.time.dto.request.ReportDto;
+import backend.time.dto.request.ReportRequestDto;
 import backend.time.model.Member.Member;
 import backend.time.model.Report;
 import backend.time.model.board.Board;
@@ -19,7 +19,7 @@ public class ReportService {
     private final BoardRepository boardRepository;
     private final ReportRepository reportRepository;
     @Transactional
-    public boolean postReport(Long memberId, Long boardId, ReportDto reportDto){
+    public boolean postReport(Long memberId, Long boardId, ReportRequestDto reportDto){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()->new IllegalArgumentException("존재하지 않는 회원입니다."));
         Board board = boardRepository.findById(boardId)

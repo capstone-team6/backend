@@ -1,7 +1,6 @@
 package backend.time.controller;
 
-
-import backend.time.dto.ChatRoomDetailDto;
+import backend.time.dto.response.ChatResponseDto.ChatRoomDetailDto;
 import backend.time.model.ChatRoom;
 import backend.time.model.board.BoardType;
 import backend.time.service.ChattingService;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @RestController

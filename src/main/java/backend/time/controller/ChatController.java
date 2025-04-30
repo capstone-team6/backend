@@ -1,7 +1,7 @@
 package backend.time.controller;
 
 import backend.time.dto.ChatDto;
-import backend.time.dto.ChatResponseDto;
+import backend.time.dto.response.ChatResponseDto.ChatSendResponseDto;
 import backend.time.model.ChatImage;
 import backend.time.model.ChatMessage;
 import backend.time.model.ChatRoom;
@@ -18,12 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,7 +35,7 @@ public class ChatController {
     private final ImageManager imageManager;
 
     @PostMapping("/chat/send")
-    public ChatResponseDto send(@AuthenticationPrincipal UserDetails userDetails, @ModelAttribute ChatDto chatDto) throws IOException {
+    public ChatSendResponseDto send(@AuthenticationPrincipal UserDetails userDetails, @ModelAttribute ChatDto chatDto) throws IOException {
         //프론트에서 roomId, message, type만 보내면됨
         String userKakaoId = userDetails.getUsername();
         Member member = memberService.findMember(userKakaoId);
@@ -50,7 +47,7 @@ public class ChatController {
         Board board = chatRoom.get().getBoard();
         log.info("chatDto.getImages() = {}", chatDto.getImages());
 
-        ChatResponseDto chatResponseDto = new ChatResponseDto();
+        ChatSendResponseDto chatResponseDto = new ChatSendResponseDto();
         if (chatDto.getImages() == null) { //사진 없는경우
 
             log.info("사진 없음");

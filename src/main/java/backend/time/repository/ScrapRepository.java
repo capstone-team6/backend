@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Optional;
 
-public interface ScrapRepository extends JpaRepository<Scrap,Long>, JpaSpecificationExecutor<Scrap> {
+public interface ScrapRepository extends JpaRepository<Scrap,Long>, JpaSpecificationExecutor<Scrap>, CustomScrapRepository {
     Optional<Scrap> findByMemberIdAndBoardId(Long memberId, Long boardId);
 }

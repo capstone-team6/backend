@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.locationtech.jts.geom.Point;
 
 @Getter
 @Setter
@@ -43,8 +44,8 @@ public class Member {
     //지도관련
     private String address;
 
-//    //위도경도를 한번에 위치를 나타내는 점
-//    private Point location;
+    @Column(nullable = false, columnDefinition = "POINT SRID 4326")
+    private Point location;
 
     private Double latitude;
     private Double longitude;
@@ -72,11 +73,8 @@ public class Member {
 
     @ElementCollection
     private Map<ServiceEvaluationCategory, Integer> serviceCount = new HashMap<>();
-/*
-    @ElementCollection
-    private Map<MannerEvaluationCategory, Integer> mannerCount = new HashMap<>();
 
-   */
-
-
+    public void addTimePay(Long amount) {
+        timePay += amount;
+    }
 }

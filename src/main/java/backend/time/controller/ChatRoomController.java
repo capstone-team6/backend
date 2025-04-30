@@ -1,8 +1,8 @@
 package backend.time.controller;
 
 import backend.time.dto.ChatDto;
-import backend.time.dto.ChatRoomResponseDto;
-import backend.time.dto.RoomEnterDto;
+import backend.time.dto.request.ChatRequestDto.RoomEnterDto;
+import backend.time.dto.response.ChatResponseDto.ChatRoomResponseDto;
 import backend.time.model.ChatImage;
 import backend.time.model.ChatMessage;
 import backend.time.model.ChatRoom;
@@ -10,7 +10,7 @@ import backend.time.model.ChatType;
 import backend.time.model.Member.Member;
 import backend.time.model.board.Board;
 import backend.time.model.board.BoardType;
-import backend.time.service.BoardServiceImpl;
+import backend.time.service.BoardService;
 import backend.time.service.ChattingService;
 import backend.time.service.MemberService;
 import backend.time.service.NotificationService;
@@ -19,12 +19,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,7 +33,7 @@ public class ChatRoomController {
 
     private final ChattingService chattingService;
     private final MemberService memberService;
-    private final BoardServiceImpl boardService;
+    private final BoardService boardService;
     private final NotificationService notificationService;
     private final EntityManager entityManager;
 
