@@ -43,10 +43,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.locationtech.jts:jts-core:1.18.1'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-	compileOnly 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok:1.18.36'
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok:1.18.36'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
@@ -60,6 +60,20 @@ dependencies {
 	implementation 'org.hibernate.orm:hibernate-spatial:6.4.1.Final'
 	implementation "com.querydsl:querydsl-sql-spatial:${dependencyManagement.importedProperties['querydsl.version']}"
 	implementation "com.querydsl:querydsl-jpa:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+}
+
+def generatedDir = "$buildDir/generated/sources/annotationProcessor/java/main"
+
+tasks.withType(JavaCompile).configureEach {
+	options.annotationProcessorGeneratedSourcesDirectory = file(generatedDir)
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs += [generatedDir]
+		}
+	}
 }
 
 tasks.named('test') {

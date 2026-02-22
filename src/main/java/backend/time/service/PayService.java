@@ -32,7 +32,7 @@ public class PayService {
     private final MemberRepository memberRepository;
 
     public PayService(@Value("${REST_API_KEY}") String restApiKey, @Value("${REST_API_SECRET}") String restApiSecret,
-                      PayChargeRepository payChargeRepository, MemberRepository memberRepository) {
+            PayChargeRepository payChargeRepository, MemberRepository memberRepository) {
 
         this.iamportClient = new IamportClient(restApiKey, restApiSecret);
         this.payChargeRepository = payChargeRepository;
@@ -67,7 +67,7 @@ public class PayService {
     }
 
     private void chargePay(Long userId, String imp_uid, Long amount) {
-        Member findMember = memberRepository.findById(userId)
+        Member findMember = memberRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다."));
         findMember.addTimePay(amount);
 
@@ -80,7 +80,7 @@ public class PayService {
         payChargeRepository.save(payCharge);
     }
 
-    //<---------------------------------------------------------------------------------->
+    // <---------------------------------------------------------------------------------->
 
     public void postPrepare(PostPrepareDto request, Long userId) throws IamportResponseException, IOException {
         Member findMember = memberRepository.findById(userId)
@@ -130,10 +130,11 @@ public class PayService {
     }
 
     private void chargePayV2(Long userId, String imp_uid, Long amount, PayCharge payCharge) {
-        Member findMember = memberRepository.findById(userId)
+        Member findMember = memberRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다."));
         findMember.addTimePay(amount);
 
         payCharge.charge(imp_uid);
     }
+
 }

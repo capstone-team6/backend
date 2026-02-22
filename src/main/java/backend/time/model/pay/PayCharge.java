@@ -22,7 +22,7 @@ public class PayCharge {
     private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id")
+    @JoinColumn(name = "member_id")
     private Member member; // 충전을 한 사람
 
     private Long amount; // 충전 한 금액
@@ -30,8 +30,8 @@ public class PayCharge {
     @Column(name = "merchant_uid")
     private String merchantUid;
 
-    @Column(name = "imp_uid")
-    private String impUid; //결제 고유 번호
+    @Column(name = "imp_uid", unique = true)
+    private String impUid; // 결제 고유 번호
 
     private PayState payState;
 

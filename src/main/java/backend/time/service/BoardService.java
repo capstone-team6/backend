@@ -101,8 +101,9 @@ public class BoardService {
         return boardId;
     }
 
-    private Board createAndSaveBoard(WriteBoardDto boardDto, Member member, String address, Point location, double longitude,
-                                     double latitude) {
+    private Board createAndSaveBoard(WriteBoardDto boardDto, Member member, String address, Point location,
+            double longitude,
+            double latitude) {
         Board board = Board.builder()
                 .category(BoardCategory.valueOf(boardDto.getCategory()))
                 .title(boardDto.getTitle())
@@ -187,7 +188,7 @@ public class BoardService {
     }
 
     private void addNewImages(List<MultipartFile> updateImages, Board board, List<Image> findImages,
-                              List<MultipartFile> newImages) throws IOException {
+            List<MultipartFile> newImages) throws IOException {
         for (MultipartFile image : updateImages) {
             if (findImages.stream().noneMatch(
                     findImage -> Objects.equals(findImage.getStoredFileName(), image.getOriginalFilename()))) {
@@ -246,6 +247,9 @@ public class BoardService {
 
     private void processPayMethodPay(Board board, ChatRoom chatRoom) {
         Member payer = getPayer(board, chatRoom);
+        // 동시 충전/사용 요청에 의한 Lost Update 방지: SELECT FOR UPDATE
+        payer = memberRepository.findByIdWithLock(payer.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다."));
 
         Long timePay = payer.getTimePay();
         validTImePay(board, timePay);
@@ -296,6 +300,9 @@ public class BoardService {
         PayStorage storage = payStorageRepository.findByBoard(board)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 저장소가 존재하지 않습니다."));
         Member payer = getPayer(board, chatRoom);
+        // 환불 시 동시 요청에 의한 Lost Update 방지: SELECT FOR UPDATE
+        payer = memberRepository.findByIdWithLock(payer.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다."));
 
         payer.setTimePay(payer.getTimePay() + storage.getAmount());
         payStorageRepository.delete(storage);
@@ -311,10 +318,15 @@ public class BoardService {
             PayStorage storage = payStorageRepository.findByBoard(board)
                     .orElseThrow(() -> new IllegalArgumentException("해당하는 저장소가 존재하지 않습니다."));
 
+            // 정산 시 동시 요청에 의한 Lost Update 방지: SELECT FOR UPDATE
             if (board.getBoardType().equals(SELL)) {
-                board.getMember().setTimePay(board.getMember().getTimePay() + storage.getAmount());
+                Member seller = memberRepository.findByIdWithLock(board.getMember().getId())
+                        .orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다."));
+                seller.setTimePay(seller.getTimePay() + storage.getAmount());
             } else {
-                chatRoom.getBuyer().setTimePay(chatRoom.getBuyer().getTimePay() + storage.getAmount());
+                Member buyer = memberRepository.findByIdWithLock(chatRoom.getBuyer().getId())
+                        .orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다."));
+                buyer.setTimePay(buyer.getTimePay() + storage.getAmount());
             }
             payStorageRepository.delete(storage);
         }
@@ -361,14 +373,14 @@ public class BoardService {
     public List<Board> writeList(Long userId) {
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다."));
-        List<Board> boards = boardRepository.findByMemberOrderByCreateDateDesc(member);
-        return boards;
+        // N+1 해결: images JOIN FETCH로 한 번에 조회
+        return boardRepository.findByMemberWithImages(member);
     }
 
     public List<Board> tradeList(Long userId) {
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다."));
-        List<Board> boards = boardRepository.findByTraderOrderByCreateDateDesc(member);
-        return boards;
+        // N+1 해결: images JOIN FETCH로 한 번에 조회
+        return boardRepository.findByTraderWithImages(member);
     }
 }
