@@ -8,6 +8,7 @@ import backend.time.model.pay.Account;
 import backend.time.model.pay.PayMethod;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -62,6 +63,7 @@ public class Board {
     @Enumerated(EnumType.STRING)
     private PayMethod payMethod;
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 

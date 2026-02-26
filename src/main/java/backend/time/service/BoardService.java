@@ -373,14 +373,12 @@ public class BoardService {
     public List<Board> writeList(Long userId) {
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다."));
-        // N+1 해결: images JOIN FETCH로 한 번에 조회
-        return boardRepository.findByMemberWithImages(member);
+        return boardRepository.findByMemberOrderByCreateDateDesc(member);
     }
 
     public List<Board> tradeList(Long userId) {
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다."));
-        // N+1 해결: images JOIN FETCH로 한 번에 조회
-        return boardRepository.findByTraderWithImages(member);
+        return boardRepository.findByTraderOrderByCreateDateDesc(member);
     }
 }
